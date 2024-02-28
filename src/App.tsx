@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import papa from "papaparse";
 import "./App.css";
-import type { DemoDataRow, PieDataRow } from "./types";
+import type { DemoDataRow, PieDataRow, PrecipData, CrashData } from "./types";
 import { PieChart, Pie, Cell, LabelList } from "recharts";
 
 const App = () => {
-  const [csvData, setCsvData] = useState<DemoDataRow[]>([]);
+  const [csvData, setCsvData] = useState<PrecipData[]>([]);
+  const [csvData2, setCsvData2] = useState<CrashData[]>([]);
   const [pieData, setPieData] = useState<PieDataRow[]>([]);
-  const csvFileUrl = "/data/demo.csv"; // FIX ME
+  const csvFileURL = "/data/Precipitation Data Spreadsheet.csv";
 
   const getData = async () => {
-    let response = await fetch(csvFileUrl);
+    let response = await fetch(csvFileURL);
     let text = await response.text();
-    let parsed = await papa.parse<DemoDataRow>(text, { header: true });
+    let parsed = await papa.parse<PrecipData>(text, { header: true });
     console.log("Successfully parsed data:", parsed); // Log to make it easy to inspect shape of our data in the inspector
-    setCsvData(parsed.data.filter((row) => row.Name)); // Only keep rows that have a name, so we avoid blank row at end of file
+    setCsvData(parsed.data.filter((row) => row.Date)); // Only keep rows that have a date, so we avoid blank row at end of file
   };
 
   useEffect(() => {
@@ -26,10 +27,10 @@ const App = () => {
     let newPieCounts: { [key: string]: number } = {};
     let newPieData: PieDataRow[] = [];
     csvData.forEach((row) => {
-      if (!newPieCounts[row["Favorite Sport"]]) {
-        newPieCounts[row["Favorite Sport"]] = 0; // initialize if not there...
+      if (!newPieCounts[row["Precipitation"]]) {
+        newPieCounts[row["Precipitation"]] = 0; // initialize if not there...
       }
-      newPieCounts[row["Favorite Sport"]]++; // Add one!
+      newPieCounts[row["Precipitation"]]++; // Add one!
     });
     for (let key in newPieCounts) {
       newPieData.push({ name: key, value: newPieCounts[key] });
@@ -42,7 +43,7 @@ const App = () => {
     <main style={{ maxWidth: 800, margin: "auto" }}>
       <h1>Hello Data Visualization</h1>
       <p>Loaded {csvData.length} rows of CSV Data!</p>
-      <h2>Favorite Colors:</h2>
+      <h2>Inches of rain:</h2>
       <PieChart width={300} height={300}>
         <Pie data={pieData} dataKey="value" nameKey="name" label fill="yellow">
           <LabelList dataKey="name" position="middle" />
@@ -53,8 +54,7 @@ const App = () => {
       </PieChart>
       {csvData.map((row, idx) => (
         <div key={idx}>
-          {row.Name} age {row.Age}'s favorite color is {row["Favorite Color"]}{" "}
-          and they play {row["Favorite Sport"]}
+          On {row.Date} there was {row["Precipitation"]} inches of rainfall.
         </div>
       ))}
     </main>

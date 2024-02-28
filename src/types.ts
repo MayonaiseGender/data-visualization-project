@@ -135,3 +135,8 @@ export type CrashData = {
   "Truck Exclusion Time-linked RD": string;
   "Federal Functional Classification-linked RD": string;
 };
+
+export type PrecipData = {
+  Date: string;
+  Precipitation: number;
+};
